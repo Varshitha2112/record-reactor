@@ -111,10 +111,6 @@ const Auth = () => {
               </button>
             </p>
           </Card>
-
-          <p className="text-xs text-muted-foreground mt-6">
-            Tip: sign up with <code className="font-mono text-foreground">admin@school.edu</code> to bootstrap the admin role.
-          </p>
         </div>
       </div>
 

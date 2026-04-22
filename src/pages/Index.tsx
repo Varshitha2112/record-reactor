@@ -92,7 +92,7 @@ const Index = () => {
           <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full gradient-gold opacity-30 blur-3xl" />
           <div className="relative max-w-2xl">
             <h2 className="font-display text-4xl md:text-5xl">Ready to get started?</h2>
-            <p className="mt-4 text-primary-foreground/80 text-lg">Create your account in under a minute. Admins use <code className="px-1.5 py-0.5 rounded bg-primary-foreground/10 text-accent-glow font-mono text-sm">admin@school.edu</code> to bootstrap the registry.</p>
+            <p className="mt-4 text-primary-foreground/80 text-lg">Create your account in under a minute and submit your enrollment for review.</p>
             <Link to="/auth?mode=signup">
               <Button size="lg" className="mt-8 gradient-gold text-accent-foreground shadow-gold h-12 px-8">Create your account</Button>
             </Link>

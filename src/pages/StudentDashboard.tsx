@@ -105,14 +105,14 @@ const StudentDashboard = () => {
     setUploading(true);
     try {
       const ext = file.name.split(".").pop();
-      const folder = kind === "photo" ? "public" : "private";
+      const folder = kind === "photo" ? "photos" : "documents";
       const path = `${user.id}/${folder}/${kind}-${Date.now()}.${ext}`;
       const { error } = await supabase.storage.from("student-files").upload(path, file, { upsert: false });
       if (error) throw error;
-      const { data: { publicUrl } } = supabase.storage.from("student-files").getPublicUrl(path);
       if (kind === "photo") {
-        await supabase.from("profiles").update({ photo_url: publicUrl }).eq("id", user.id);
-        if (student) await supabase.from("students").update({ photo_url: publicUrl }).eq("id", student.id);
+        // Store the storage path; resolve to a signed URL on render
+        await supabase.from("profiles").update({ photo_url: path }).eq("id", user.id);
+        if (student) await supabase.from("students").update({ photo_url: path }).eq("id", student.id);
         toast.success("Photo updated");
       } else {
         if (!student) { toast.error("Save your profile first"); return; }
