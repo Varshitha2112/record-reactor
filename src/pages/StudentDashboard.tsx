@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CheckCircle2, Clock, XCircle, Upload, FileText, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { useSignedUrl } from "@/hooks/useSignedUrl";
 import { z } from "zod";
 
 interface Course { id: string; code: string; title: string; }
@@ -139,6 +140,7 @@ const StudentDashboard = () => {
   const status = student ? STATUS[student.status] : null;
   const Icon = status?.icon;
   const initials = (form.full_name || user?.email || "S").split(" ").map(s => s[0]).join("").slice(0, 2).toUpperCase();
+  const photoUrl = useSignedUrl(student?.photo_url);
 
   return (
     <div className="min-h-screen bg-background">
@@ -147,7 +149,7 @@ const StudentDashboard = () => {
         {/* Header card */}
         <div className="flex flex-col md:flex-row md:items-center gap-6 mb-8">
           <Avatar className="h-20 w-20 ring-2 ring-accent/40 ring-offset-2 ring-offset-background">
-            <AvatarImage src={student?.photo_url ?? undefined} />
+            <AvatarImage src={photoUrl} />
             <AvatarFallback className="bg-primary text-primary-foreground font-display text-xl">{initials}</AvatarFallback>
           </Avatar>
           <div className="flex-1">
