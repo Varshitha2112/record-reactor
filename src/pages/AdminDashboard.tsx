@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { StudentAvatar } from "@/components/StudentAvatar";
 import { Users, CheckCircle2, Clock, XCircle, BookOpen, Search, ChevronLeft, ChevronRight, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { notifyUser } from "@/lib/notify";
@@ -198,7 +199,7 @@ const AdminDashboard = () => {
                       <TableRow key={s.id} className="hover:bg-muted/40">
                         <TableCell>
                           <div className="flex items-center gap-3">
-                            <Avatar className="h-9 w-9"><AvatarImage src={s.photo_url ?? undefined} /><AvatarFallback className="bg-primary text-primary-foreground text-xs">{s.full_name?.split(" ").map(n => n[0]).join("").slice(0,2).toUpperCase()}</AvatarFallback></Avatar>
+                            <StudentAvatar photoPath={s.photo_url} name={s.full_name} className="h-9 w-9" fallbackClassName="text-xs" />
                             <div><div className="font-medium">{s.full_name}</div><div className="text-xs text-muted-foreground">{s.phone ?? "—"}</div></div>
                           </div>
                         </TableCell>
@@ -311,7 +312,7 @@ const AdminDashboard = () => {
             {selected && (
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
-                  <Avatar className="h-14 w-14"><AvatarImage src={selected.photo_url ?? undefined} /><AvatarFallback className="bg-primary text-primary-foreground">{selected.full_name?.split(" ").map(n=>n[0]).join("").slice(0,2)}</AvatarFallback></Avatar>
+                  <StudentAvatar photoPath={selected.photo_url} name={selected.full_name} className="h-14 w-14" />
                   <div>
                     <div className="font-medium">{selected.full_name}</div>
                     <div className="text-sm text-muted-foreground">{selected.course_id ? courseMap[selected.course_id]?.title : "No course selected"}</div>

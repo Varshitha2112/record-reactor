@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CheckCircle2, Clock, XCircle, Upload, FileText, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { useSignedUrl } from "@/hooks/useSignedUrl";
 import { z } from "zod";
 
 interface Course { id: string; code: string; title: string; }
@@ -105,14 +106,14 @@ const StudentDashboard = () => {
     setUploading(true);
     try {
       const ext = file.name.split(".").pop();
-      const folder = kind === "photo" ? "public" : "private";
+      const folder = kind === "photo" ? "photos" : "documents";
       const path = `${user.id}/${folder}/${kind}-${Date.now()}.${ext}`;
       const { error } = await supabase.storage.from("student-files").upload(path, file, { upsert: false });
       if (error) throw error;
-      const { data: { publicUrl } } = supabase.storage.from("student-files").getPublicUrl(path);
       if (kind === "photo") {
-        await supabase.from("profiles").update({ photo_url: publicUrl }).eq("id", user.id);
-        if (student) await supabase.from("students").update({ photo_url: publicUrl }).eq("id", student.id);
+        // Store the storage path; resolve to a signed URL on render
+        await supabase.from("profiles").update({ photo_url: path }).eq("id", user.id);
+        if (student) await supabase.from("students").update({ photo_url: path }).eq("id", student.id);
         toast.success("Photo updated");
       } else {
         if (!student) { toast.error("Save your profile first"); return; }
@@ -139,6 +140,7 @@ const StudentDashboard = () => {
   const status = student ? STATUS[student.status] : null;
   const Icon = status?.icon;
   const initials = (form.full_name || user?.email || "S").split(" ").map(s => s[0]).join("").slice(0, 2).toUpperCase();
+  const photoUrl = useSignedUrl(student?.photo_url);
 
   return (
     <div className="min-h-screen bg-background">
@@ -147,7 +149,7 @@ const StudentDashboard = () => {
         {/* Header card */}
         <div className="flex flex-col md:flex-row md:items-center gap-6 mb-8">
           <Avatar className="h-20 w-20 ring-2 ring-accent/40 ring-offset-2 ring-offset-background">
-            <AvatarImage src={student?.photo_url ?? undefined} />
+            <AvatarImage src={photoUrl} />
             <AvatarFallback className="bg-primary text-primary-foreground font-display text-xl">{initials}</AvatarFallback>
           </Avatar>
           <div className="flex-1">
@@ -246,12 +248,16 @@ const StudentDashboard = () => {
                 <div className="space-y-2">
                   {student.document_urls.map((path) => {
                     const name = path.split("/").pop() ?? path;
-                    const { data: { publicUrl } } = supabase.storage.from("student-files").getPublicUrl(path);
+                    const openSigned = async () => {
+                      const { data, error } = await supabase.storage.from("student-files").createSignedUrl(path, 3600);
+                      if (error || !data?.signedUrl) { toast.error("Could not open document"); return; }
+                      window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+                    };
                     return (
                       <div key={path} className="flex items-center justify-between p-3 rounded-md border border-border bg-card">
                         <div className="flex items-center gap-3 min-w-0">
                           <div className="grid h-9 w-9 place-items-center rounded bg-muted"><FileText className="h-4 w-4" /></div>
-                          <a href={publicUrl} target="_blank" rel="noreferrer" className="text-sm truncate hover:underline">{name}</a>
+                          <button type="button" onClick={openSigned} className="text-sm truncate hover:underline text-left">{name}</button>
                         </div>
                         <Button variant="ghost" size="icon" onClick={() => removeDoc(path)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                       </div>
