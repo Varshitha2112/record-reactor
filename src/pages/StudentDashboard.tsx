@@ -246,12 +246,16 @@ const StudentDashboard = () => {
                 <div className="space-y-2">
                   {student.document_urls.map((path) => {
                     const name = path.split("/").pop() ?? path;
-                    const { data: { publicUrl } } = supabase.storage.from("student-files").getPublicUrl(path);
+                    const openSigned = async () => {
+                      const { data, error } = await supabase.storage.from("student-files").createSignedUrl(path, 3600);
+                      if (error || !data?.signedUrl) { toast.error("Could not open document"); return; }
+                      window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+                    };
                     return (
                       <div key={path} className="flex items-center justify-between p-3 rounded-md border border-border bg-card">
                         <div className="flex items-center gap-3 min-w-0">
                           <div className="grid h-9 w-9 place-items-center rounded bg-muted"><FileText className="h-4 w-4" /></div>
-                          <a href={publicUrl} target="_blank" rel="noreferrer" className="text-sm truncate hover:underline">{name}</a>
+                          <button type="button" onClick={openSigned} className="text-sm truncate hover:underline text-left">{name}</button>
                         </div>
                         <Button variant="ghost" size="icon" onClick={() => removeDoc(path)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                       </div>
