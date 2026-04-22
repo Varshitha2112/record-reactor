@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Users read own student files" ON storage.objects;
